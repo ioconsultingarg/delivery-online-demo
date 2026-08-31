@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedí online — Pizzería Don Mario</title>
+<meta name="description" content="Armá tu pedido online en Pizzería Don Mario y enviálo directo por WhatsApp, sin comisión de marketplace.">
+<link rel="canonical" href="https://ioconsultingarg.github.io/delivery-online-demo/">
+<meta property="og:title" content="Pedí online — Pizzería Don Mario">
+<meta property="og:description" content="Catálogo con carrito que arma el pedido y lo envía formateado por WhatsApp. Demo de portfolio de IO Consulting.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="page-header">
+  <div class="container">
+    <h1 id="nombreNegocio">Cargando…</h1>
+    <p class="page-subtitle">Elegí tus platos, armá el carrito y enviá el pedido directo por WhatsApp — sin marketplace, sin comisión.</p>
+  </div>
+</header>
+
+<nav class="category-nav container" id="categoryNav"></nav>
+
+<main class="container">
+  <div id="categorias"></div>
+</main>
+
+<button class="cart-fab" id="cartFab"></button>
+
+<div class="overlay" id="overlay"></div>
+<aside class="side-panel" id="sidePanel">
+  <div class="side-panel-header">
+    <h2 id="sidePanelTitle" style="margin:0;font-size:1.1rem;">Tu pedido</h2>
+    <button class="btn-close" id="btnClosePanel">✕</button>
+  </div>
+  <div class="side-panel-body" id="sidePanelBody"></div>
+  <div class="side-panel-footer" id="sidePanelFooter"></div>
+</aside>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>Simulador de pedidos online · Demo desarrollado por IO Consulting</p>
+  </div>
+</footer>
+
+<script src="js/catalogo.js"></script>
+<script src="js/carrito.js"></script>
+</body>
+</html>
