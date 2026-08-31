@@ -12,6 +12,8 @@ Hoy muchos comercios toman pedidos de delivery por teléfono o WhatsApp manual, 
 
 Flujo: elegir productos del catálogo (con contador de cantidad) → ver el carrito en el panel lateral → completar datos de entrega y pago → el pedido se abre ya redactado en WhatsApp, listo para enviar.
 
+![Demo del flujo de pedido: agregar al carrito, checkout y mensaje armado para WhatsApp](assets/delivery-online-pedido-demo.gif)
+
 ## Stack
 
 - HTML/CSS/JS puro, sin build step
