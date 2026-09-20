@@ -1,4 +1,4 @@
-// Catálogo público con carrito — Delivery online demo (Pizzería Don Mario).
+// Catálogo público con carrito — Delivery online demo (Pizzería IO Consulting).
 // Reusa el mismo data/menu.json que menu-qr-demo (mismo "motor de catálogo").
 
 let MENU = null;

@@ -1,6 +1,6 @@
 # delivery-online-demo
 
-Catálogo con carrito y pedido online, demo de portfolio de **IO Consulting**. Mismo cliente ficticio que `menu-qr-demo` y `landing-comercio-demo` ("Pizzería Don Mario"), reusando el mismo `data/menu.json` — es el mismo "motor de catálogo" con un frontend distinto.
+Catálogo con carrito y pedido online, demo de portfolio de **IO Consulting**. Mismo cliente ficticio que `menu-qr-demo` y `landing-comercio-demo` ("Pizzería IO Consulting"), reusando el mismo `data/menu.json` — es el mismo "motor de catálogo" con un frontend distinto.
 
 ## Problema que resuelve
 
