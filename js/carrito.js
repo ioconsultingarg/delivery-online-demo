@@ -5,6 +5,17 @@
 let panelMode = 'carrito';
 let checkoutData = { nombre: '', telefono: '', tipoEntrega: 'retiro', direccion: '', metodoPago: 'efectivo', notas: '' };
 
+// Escapa texto ingresado por el usuario antes de insertarlo con innerHTML
+// (evita que alguien inyecte HTML/JS tipeándolo en un campo del formulario).
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function abrirCarrito() {
   panelMode = 'carrito';
   document.getElementById('overlay').classList.add('open');
@@ -61,11 +72,11 @@ function irACheckout() {
   body.innerHTML = `
     <div class="form-field">
       <label for="inpNombre">Nombre y apellido</label>
-      <input type="text" id="inpNombre" value="${checkoutData.nombre}" placeholder="Ej: Marina Gómez">
+      <input type="text" id="inpNombre" value="${escapeHtml(checkoutData.nombre)}" placeholder="Ej: Marina Gómez">
     </div>
     <div class="form-field">
       <label for="inpTelefono">Tu WhatsApp</label>
-      <input type="tel" id="inpTelefono" value="${checkoutData.telefono}" placeholder="Ej: 11 5555-5555">
+      <input type="tel" id="inpTelefono" value="${escapeHtml(checkoutData.telefono)}" placeholder="Ej: 11 5555-5555">
     </div>
     <div class="form-field">
       <label>Entrega</label>
@@ -74,7 +85,7 @@ function irACheckout() {
     </div>
     <div class="form-field" id="campoDireccion" style="display:${checkoutData.tipoEntrega === 'envio' ? 'block' : 'none'}">
       <label for="inpDireccion">Dirección de entrega</label>
-      <input type="text" id="inpDireccion" value="${checkoutData.direccion}" placeholder="Calle, número, piso/depto">
+      <input type="text" id="inpDireccion" value="${escapeHtml(checkoutData.direccion)}" placeholder="Calle, número, piso/depto">
     </div>
     <div class="form-field">
       <label>Método de pago</label>
@@ -84,7 +95,7 @@ function irACheckout() {
     </div>
     <div class="form-field">
       <label for="inpNotas">Notas (opcional)</label>
-      <textarea id="inpNotas" placeholder="Ej: sin aceitunas, tocar timbre 2B...">${checkoutData.notas}</textarea>
+      <textarea id="inpNotas" placeholder="Ej: sin aceitunas, tocar timbre 2B...">${escapeHtml(checkoutData.notas)}</textarea>
     </div>
     <p id="avisoCheckout" style="color:var(--color-danger);font-size:0.82rem;font-weight:600;display:none;"></p>
   `;
@@ -155,7 +166,7 @@ function renderConfirmacion(mensaje) {
       <div class="icon">✅</div>
       <h3>¡Se abrió WhatsApp con tu pedido!</h3>
       <p style="font-size:0.85rem;color:var(--color-text-light);">Solo tenés que enviar el mensaje que ya está redactado. Así se ve:</p>
-      <div class="confirm-summary-box">${mensaje}</div>
+      <div class="confirm-summary-box">${escapeHtml(mensaje)}</div>
     </div>
   `;
   document.getElementById('sidePanelFooter').innerHTML = `
