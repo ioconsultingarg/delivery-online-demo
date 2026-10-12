@@ -1,31 +1,43 @@
 // Carrito, checkout y armado del mensaje de WhatsApp — Delivery online demo.
 // No hay backend: el "pedido" se arma como texto y se abre en WhatsApp para que
 // el cliente lo envíe él mismo — así el dueño no paga comisión de marketplace.
+// escapeHtml() y renderQtyControl() están en catalogo.js.
 
 let panelMode = 'carrito';
 let checkoutData = { nombre: '', telefono: '', tipoEntrega: 'retiro', direccion: '', metodoPago: 'efectivo', notas: '' };
+let focoAntesDeAbrir = null;
 
-// Escapa texto ingresado por el usuario antes de insertarlo con innerHTML
-// (evita que alguien inyecte HTML/JS tipeándolo en un campo del formulario).
-function escapeHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+const TELEFONO_VALIDO = /^(?=(?:\D*\d){8,15}\D*$)[\d\s()+-]+$/;
+
+// Mientras el panel está abierto, el resto de la página queda inerte: ni el
+// teclado ni el lector de pantalla pueden salirse del diálogo.
+function fondoDelPanel() {
+  return document.querySelectorAll('body > header, body > nav, body > main, body > footer, #cartFab');
 }
 
 function abrirCarrito() {
   panelMode = 'carrito';
+  focoAntesDeAbrir = document.activeElement;
+  const panel = document.getElementById('sidePanel');
   document.getElementById('overlay').classList.add('open');
-  document.getElementById('sidePanel').classList.add('open');
+  panel.inert = false;
+  panel.classList.add('open');
+  fondoDelPanel().forEach((el) => { el.inert = true; });
   renderCarritoPanel();
+  document.getElementById('btnClosePanel').focus();
 }
 
 function cerrarPanel() {
+  const panel = document.getElementById('sidePanel');
+  if (!panel.classList.contains('open')) return;
+  if (panelMode === 'checkout') guardarCheckoutForm();
   document.getElementById('overlay').classList.remove('open');
-  document.getElementById('sidePanel').classList.remove('open');
+  panel.classList.remove('open');
+  panel.inert = true;
+  fondoDelPanel().forEach((el) => { el.inert = false; });
+  const fab = document.getElementById('cartFab');
+  const destino = focoAntesDeAbrir && focoAntesDeAbrir.isConnected && fab.classList.contains('visible') ? focoAntesDeAbrir : null;
+  (destino || document.querySelector('#categoryNav button') || document.body).focus();
 }
 
 function renderCarritoPanel() {
@@ -41,14 +53,10 @@ function renderCarritoPanel() {
     body.innerHTML = items.map(({ item, cantidad }) => `
       <div class="cart-item">
         <div>
-          <div class="cart-item-name">${cantidad} × ${item.nombre}</div>
+          <div class="cart-item-name">${cantidad} × ${escapeHtml(item.nombre)}</div>
           <div class="cart-item-precio">${formatearPrecio(item.precio)} c/u</div>
         </div>
-        <div class="qty-control">
-          <button class="qty-btn" data-menos="${item.id}">−</button>
-          <span class="qty-val">${cantidad}</span>
-          <button class="qty-btn" data-mas="${item.id}">+</button>
-        </div>
+        ${renderQtyControl(item, cantidad)}
       </div>
     `).join('');
     body.querySelectorAll('[data-mas]').forEach((btn) => btn.addEventListener('click', () => cambiarCantidad(btn.dataset.mas, 1)));
@@ -58,7 +66,7 @@ function renderCarritoPanel() {
   const footer = document.getElementById('sidePanelFooter');
   footer.innerHTML = `
     <div class="total-row"><span>Total</span><span>${formatearPrecio(totalCarrito())}</span></div>
-    <button class="btn btn-primary" id="btnIrCheckout" ${items.length === 0 ? 'disabled' : ''}>Continuar con el pedido →</button>
+    <button type="button" class="btn btn-primary" id="btnIrCheckout" ${items.length === 0 ? 'disabled' : ''}>Continuar con el pedido →</button>
   `;
   if (items.length > 0) {
     document.getElementById('btnIrCheckout').addEventListener('click', irACheckout);
@@ -72,50 +80,59 @@ function irACheckout() {
   body.innerHTML = `
     <div class="form-field">
       <label for="inpNombre">Nombre y apellido</label>
-      <input type="text" id="inpNombre" value="${escapeHtml(checkoutData.nombre)}" placeholder="Ej: Marina Gómez">
+      <input type="text" id="inpNombre" autocomplete="name" maxlength="80" value="${escapeHtml(checkoutData.nombre)}" placeholder="Ej: Marina Gómez">
     </div>
     <div class="form-field">
       <label for="inpTelefono">Tu WhatsApp</label>
-      <input type="tel" id="inpTelefono" value="${escapeHtml(checkoutData.telefono)}" placeholder="Ej: 11 5555-5555">
+      <input type="tel" id="inpTelefono" autocomplete="tel" inputmode="tel" maxlength="20" value="${escapeHtml(checkoutData.telefono)}" placeholder="Ej: 11 2345-6789">
     </div>
-    <div class="form-field">
-      <label>Entrega</label>
+    <fieldset class="form-field">
+      <legend>Entrega</legend>
       <label class="radio-option"><input type="radio" name="entrega" value="retiro" ${checkoutData.tipoEntrega === 'retiro' ? 'checked' : ''}> Retiro en el local</label>
       <label class="radio-option"><input type="radio" name="entrega" value="envio" ${checkoutData.tipoEntrega === 'envio' ? 'checked' : ''}> Envío a domicilio</label>
-    </div>
-    <div class="form-field" id="campoDireccion" style="display:${checkoutData.tipoEntrega === 'envio' ? 'block' : 'none'}">
+    </fieldset>
+    <div class="form-field" id="campoDireccion" ${checkoutData.tipoEntrega === 'envio' ? '' : 'hidden'}>
       <label for="inpDireccion">Dirección de entrega</label>
-      <input type="text" id="inpDireccion" value="${escapeHtml(checkoutData.direccion)}" placeholder="Calle, número, piso/depto">
+      <input type="text" id="inpDireccion" autocomplete="street-address" maxlength="120" value="${escapeHtml(checkoutData.direccion)}" placeholder="Calle, número, piso/depto">
     </div>
-    <div class="form-field">
-      <label>Método de pago</label>
+    <fieldset class="form-field">
+      <legend>Método de pago</legend>
       <label class="radio-option"><input type="radio" name="pago" value="efectivo" ${checkoutData.metodoPago === 'efectivo' ? 'checked' : ''}> Efectivo</label>
       <label class="radio-option"><input type="radio" name="pago" value="transferencia" ${checkoutData.metodoPago === 'transferencia' ? 'checked' : ''}> Transferencia</label>
       <label class="radio-option disabled"><input type="radio" name="pago" disabled> Mercado Pago <span class="tag-proximamente">Próximamente</span></label>
-    </div>
+    </fieldset>
     <div class="form-field">
       <label for="inpNotas">Notas (opcional)</label>
-      <textarea id="inpNotas" placeholder="Ej: sin aceitunas, tocar timbre 2B...">${escapeHtml(checkoutData.notas)}</textarea>
+      <textarea id="inpNotas" maxlength="300" placeholder="Ej: sin aceitunas, tocar timbre 2B...">${escapeHtml(checkoutData.notas)}</textarea>
     </div>
-    <p id="avisoCheckout" style="color:var(--color-danger);font-size:0.82rem;font-weight:600;display:none;"></p>
+    <p class="aviso-error" id="avisoCheckout" role="alert" hidden></p>
+    <p class="nota-privacidad">Esto es una demo: tus datos no se guardan ni se envían a ningún servidor. Solo se usan en tu navegador para redactar el mensaje de WhatsApp.</p>
   `;
 
   document.querySelectorAll('input[name="entrega"]').forEach((r) => r.addEventListener('change', (e) => {
     checkoutData.tipoEntrega = e.target.value;
-    document.getElementById('campoDireccion').style.display = e.target.value === 'envio' ? 'block' : 'none';
+    document.getElementById('campoDireccion').hidden = e.target.value !== 'envio';
   }));
 
   const footer = document.getElementById('sidePanelFooter');
   footer.innerHTML = `
-    <button class="btn btn-secondary" id="btnVolverCarrito" style="margin-bottom:0.6rem;">← Volver al pedido</button>
-    <button class="btn btn-whatsapp" id="btnConfirmarPedido">Enviar pedido por WhatsApp</button>
+    <button type="button" class="btn btn-secondary btn-volver" id="btnVolverCarrito">← Volver al pedido</button>
+    <button type="button" class="btn btn-whatsapp" id="btnConfirmarPedido">Enviar pedido por WhatsApp</button>
   `;
-  document.getElementById('btnVolverCarrito').addEventListener('click', () => { panelMode = 'carrito'; renderCarritoPanel(); });
+  document.getElementById('btnVolverCarrito').addEventListener('click', () => {
+    guardarCheckoutForm();
+    panelMode = 'carrito';
+    renderCarritoPanel();
+    document.getElementById('btnIrCheckout').focus();
+  });
   document.getElementById('btnConfirmarPedido').addEventListener('click', confirmarPedido);
+  document.getElementById('inpNombre').focus();
 }
 
 function guardarCheckoutForm() {
-  checkoutData.nombre = document.getElementById('inpNombre').value.trim();
+  const inpNombre = document.getElementById('inpNombre');
+  if (!inpNombre) return;
+  checkoutData.nombre = inpNombre.value.trim();
   checkoutData.telefono = document.getElementById('inpTelefono').value.trim();
   checkoutData.metodoPago = document.querySelector('input[name="pago"]:checked')?.value || 'efectivo';
   checkoutData.notas = document.getElementById('inpNotas').value.trim();
@@ -123,17 +140,33 @@ function guardarCheckoutForm() {
   checkoutData.direccion = inpDireccion ? inpDireccion.value.trim() : '';
 }
 
+function validarCheckout() {
+  const conEnvio = checkoutData.tipoEntrega === 'envio';
+  if (!checkoutData.nombre || !checkoutData.telefono || (conEnvio && !checkoutData.direccion)) {
+    return { campo: !checkoutData.nombre ? 'inpNombre' : !checkoutData.telefono ? 'inpTelefono' : 'inpDireccion',
+      texto: 'Completá nombre, teléfono' + (conEnvio ? ' y dirección' : '') + ' para continuar.' };
+  }
+  if (!TELEFONO_VALIDO.test(checkoutData.telefono)) {
+    return { campo: 'inpTelefono', texto: 'Revisá el teléfono: solo números, con código de área (ej: 11 2345-6789).' };
+  }
+  return null;
+}
+
 function confirmarPedido() {
   guardarCheckoutForm();
   const aviso = document.getElementById('avisoCheckout');
-  if (!checkoutData.nombre || !checkoutData.telefono || (checkoutData.tipoEntrega === 'envio' && !checkoutData.direccion)) {
-    aviso.textContent = 'Completá nombre, teléfono' + (checkoutData.tipoEntrega === 'envio' ? ' y dirección' : '') + ' para continuar.';
-    aviso.style.display = 'block';
+  const error = validarCheckout();
+  if (error) {
+    aviso.textContent = error.texto;
+    aviso.hidden = false;
+    document.getElementById(error.campo).focus();
     return;
   }
 
   const mensaje = armarMensajeWhatsApp();
-  const url = `https://wa.me/${MENU.negocio.whatsapp}?text=${encodeURIComponent(mensaje)}`;
+  // Sin número configurado, WhatsApp deja elegir a quién mandarle el mensaje.
+  const numero = String(MENU.negocio.whatsapp || '').replace(/\D/g, '');
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank', 'noopener');
 
   panelMode = 'confirmacion';
@@ -163,25 +196,30 @@ function renderConfirmacion(mensaje) {
   document.getElementById('sidePanelTitle').textContent = 'Pedido armado';
   document.getElementById('sidePanelBody').innerHTML = `
     <div class="confirm-screen">
-      <div class="icon">✅</div>
+      <div class="icon" aria-hidden="true">✅</div>
       <h3>¡Se abrió WhatsApp con tu pedido!</h3>
-      <p style="font-size:0.85rem;color:var(--color-text-light);">Solo tenés que enviar el mensaje que ya está redactado. Así se ve:</p>
+      <p class="confirm-ayuda">Solo tenés que enviar el mensaje que ya está redactado. Así se ve:</p>
       <div class="confirm-summary-box">${escapeHtml(mensaje)}</div>
     </div>
   `;
   document.getElementById('sidePanelFooter').innerHTML = `
-    <button class="btn btn-primary" id="btnNuevoPedido">Hacer otro pedido</button>
+    <button type="button" class="btn btn-primary" id="btnNuevoPedido">Hacer otro pedido</button>
   `;
-  document.getElementById('btnNuevoPedido').addEventListener('click', () => {
+  const btnNuevo = document.getElementById('btnNuevoPedido');
+  btnNuevo.addEventListener('click', () => {
     Object.keys(carrito).forEach((k) => delete carrito[k]);
     checkoutData = { nombre: '', telefono: '', tipoEntrega: 'retiro', direccion: '', metodoPago: 'efectivo', notas: '' };
     refrescarVistas();
     cerrarPanel();
   });
+  btnNuevo.focus();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cartFab').addEventListener('click', abrirCarrito);
   document.getElementById('overlay').addEventListener('click', cerrarPanel);
   document.getElementById('btnClosePanel').addEventListener('click', cerrarPanel);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') cerrarPanel();
+  });
 });

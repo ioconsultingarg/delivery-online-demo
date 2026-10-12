@@ -4,13 +4,32 @@
 let MENU = null;
 const carrito = {}; // { itemId: { item, cantidad } }
 
+// Escapa cualquier texto antes de insertarlo con innerHTML: lo que tipea el
+// usuario y también lo que viene del menú (hoy es un JSON propio, pero mañana
+// puede venir de un panel o una planilla editable por terceros).
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function formatearPrecio(n) {
   return '$' + n.toLocaleString('es-AR');
 }
 
 async function cargarMenu() {
-  const res = await fetch('data/menu.json');
-  MENU = await res.json();
+  try {
+    const res = await fetch('data/menu.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    MENU = await res.json();
+  } catch (e) {
+    document.getElementById('categorias').innerHTML =
+      '<p class="cart-empty" role="alert">No pudimos cargar el menú. Recargá la página para volver a intentar.</p>';
+    return;
+  }
   document.getElementById('nombreNegocio').textContent = MENU.negocio.nombre;
   renderCategoryNav();
   renderCategorias();
@@ -19,13 +38,14 @@ async function cargarMenu() {
 function renderCategoryNav() {
   const nav = document.getElementById('categoryNav');
   nav.innerHTML = MENU.categorias.map((cat, i) =>
-    `<button data-cat="${cat.id}" class="${i === 0 ? 'active' : ''}">${cat.nombre}</button>`
+    `<button type="button" data-cat="${escapeHtml(cat.id)}" class="${i === 0 ? 'active' : ''}">${escapeHtml(cat.nombre)}</button>`
   ).join('');
   nav.querySelectorAll('button').forEach((btn) => {
     btn.addEventListener('click', () => {
       nav.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById('cat-' + btn.dataset.cat).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      document.getElementById('cat-' + btn.dataset.cat).scrollIntoView({ behavior: reducir ? 'auto' : 'smooth', block: 'start' });
     });
   });
 }
@@ -33,8 +53,8 @@ function renderCategoryNav() {
 function renderCategorias() {
   const cont = document.getElementById('categorias');
   cont.innerHTML = MENU.categorias.map((cat) => `
-    <section id="cat-${cat.id}">
-      <h2 class="categoria-titulo">${cat.nombre}</h2>
+    <section id="cat-${escapeHtml(cat.id)}">
+      <h2 class="categoria-titulo">${escapeHtml(cat.nombre)}</h2>
       ${cat.items.map((item) => renderItemCard(item)).join('')}
     </section>
   `).join('');
@@ -47,24 +67,33 @@ function renderCategorias() {
   cont.querySelectorAll('[data-menos]').forEach((btn) => btn.addEventListener('click', () => cambiarCantidad(btn.dataset.menos, -1)));
 }
 
+// Control − cantidad + compartido por el catálogo y el panel del carrito.
+function renderQtyControl(item, cantidad) {
+  const id = escapeHtml(item.id);
+  const nombre = escapeHtml(item.nombre);
+  return `<div class="qty-control">
+    <button type="button" class="qty-btn" data-menos="${id}" aria-label="Quitar uno de ${nombre}">−</button>
+    <span class="qty-val" aria-label="${cantidad} en el pedido">${cantidad}</span>
+    <button type="button" class="qty-btn" data-mas="${id}" aria-label="Agregar uno más de ${nombre}">+</button>
+  </div>`;
+}
+
 function renderItemCard(item) {
   const enCarrito = carrito[item.id];
+  const id = escapeHtml(item.id);
+  const nombre = escapeHtml(item.nombre);
   const badges = `${item.destacado ? '<span class="badge badge-destacado">Recomendado</span>' : ''}${item.agotado ? '<span class="badge badge-agotado">Agotado</span>' : ''}`;
   const acciones = item.agotado
-    ? `<button class="btn-agregar" disabled>Agotado</button>`
+    ? `<button type="button" class="btn-agregar" disabled>Agotado</button>`
     : enCarrito
-      ? `<div class="qty-control">
-           <button class="qty-btn" data-menos="${item.id}">−</button>
-           <span class="qty-val">${enCarrito.cantidad}</span>
-           <button class="qty-btn" data-mas="${item.id}">+</button>
-         </div>`
-      : `<button class="btn-agregar" data-agregar="${item.id}">Agregar</button>`;
+      ? renderQtyControl(item, enCarrito.cantidad)
+      : `<button type="button" class="btn-agregar" data-agregar="${id}" aria-label="Agregar ${nombre} al pedido">Agregar</button>`;
 
   return `
-    <div class="item-card" id="item-${item.id}">
+    <div class="item-card" id="item-${id}">
       <div class="item-info">
-        <h3>${item.nombre}${badges}</h3>
-        ${item.descripcion ? `<p>${item.descripcion}</p>` : ''}
+        <h3>${nombre}${badges}</h3>
+        ${item.descripcion ? `<p>${escapeHtml(item.descripcion)}</p>` : ''}
         <div class="item-precio">${formatearPrecio(item.precio)}</div>
       </div>
       <div class="item-actions">${acciones}</div>
@@ -102,10 +131,34 @@ function cantidadTotalItems() {
   return Object.values(carrito).reduce((acc, { cantidad }) => acc + cantidad, 0);
 }
 
+// Las vistas se redibujan enteras, así que el botón que tenía el foco deja de
+// existir. Se anota cuál era y se vuelve a enfocar su equivalente, para que
+// quien navega con teclado no pierda el lugar.
+function recordarFoco() {
+  const el = document.activeElement;
+  if (!el || !el.dataset) return null;
+  const id = el.dataset.agregar || el.dataset.mas || el.dataset.menos;
+  if (!id) return null;
+  const zona = el.closest('#sidePanel') ? '#sidePanel' : '#categorias';
+  return { id, zona, eraMenos: Boolean(el.dataset.menos) };
+}
+
+function restaurarFoco(foco) {
+  if (!foco) return;
+  const zona = document.querySelector(foco.zona);
+  const sel = (attr) => zona.querySelector(`[data-${attr}="${CSS.escape(foco.id)}"]`);
+  const destino = (foco.eraMenos ? sel('menos') : sel('mas')) || sel('mas') || sel('agregar')
+    || zona.querySelector('#btnIrCheckout:not([disabled])')
+    || document.getElementById('btnClosePanel');
+  if (destino) destino.focus();
+}
+
 function refrescarVistas() {
+  const foco = recordarFoco();
   renderCategorias();
   renderCartFab();
   if (typeof renderCarritoPanel === 'function') renderCarritoPanel();
+  restaurarFoco(foco);
 }
 
 function renderCartFab() {
@@ -116,7 +169,9 @@ function renderCartFab() {
     return;
   }
   fab.classList.add('visible');
-  fab.innerHTML = `🛒 Ver pedido <span class="cart-count">${cant}</span> · ${formatearPrecio(totalCarrito())}`;
+  const total = formatearPrecio(totalCarrito());
+  fab.setAttribute('aria-label', `Ver pedido: ${cant} ${cant === 1 ? 'producto' : 'productos'}, total ${total}`);
+  fab.innerHTML = `<span aria-hidden="true">🛒</span> Ver pedido <span class="cart-count">${cant}</span> · ${total}`;
 }
 
 document.addEventListener('DOMContentLoaded', cargarMenu);

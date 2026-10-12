@@ -3,38 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Pedí online — Pizzería IO Consulting</title>
 <meta name="description" content="Armá tu pedido online en Pizzería IO Consulting y enviálo directo por WhatsApp, sin comisión de marketplace.">
 <link rel="canonical" href="https://ioconsultingarg.github.io/delivery-online-demo/">
 <meta property="og:title" content="Pedí online — Pizzería IO Consulting">
 <meta property="og:description" content="Catálogo con carrito que arma el pedido y lo envía formateado por WhatsApp. Demo de portfolio de IO Consulting.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://ioconsultingarg.github.io/delivery-online-demo/">
+<meta property="og:image" content="https://ioconsultingarg.github.io/delivery-online-demo/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ioconsultingarg.github.io/delivery-online-demo/assets/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍕</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <header class="page-header">
   <div class="container">
-    <h1 id="nombreNegocio">Cargando…</h1>
+    <h1 id="nombreNegocio">Pizzería IO Consulting</h1>
     <p class="page-subtitle">Elegí tus platos, armá el carrito y enviá el pedido directo por WhatsApp — sin marketplace, sin comisión.</p>
   </div>
 </header>
 
-<nav class="category-nav container" id="categoryNav"></nav>
+<nav class="category-nav container" id="categoryNav" aria-label="Categorías del menú"></nav>
 
 <main class="container">
-  <div id="categorias"></div>
+  <div id="categorias">
+    <noscript><p class="cart-empty">Para ver el menú y armar el pedido necesitás tener JavaScript activado.</p></noscript>
+  </div>
 </main>
 
-<button class="cart-fab" id="cartFab"></button>
+<button type="button" class="cart-fab" id="cartFab" aria-haspopup="dialog"></button>
 
 <div class="overlay" id="overlay"></div>
-<aside class="side-panel" id="sidePanel">
+<aside class="side-panel" id="sidePanel" role="dialog" aria-modal="true" aria-labelledby="sidePanelTitle" inert>
   <div class="side-panel-header">
-    <h2 id="sidePanelTitle" style="margin:0;font-size:1.1rem;">Tu pedido</h2>
-    <button class="btn-close" id="btnClosePanel">✕</button>
+    <h2 id="sidePanelTitle">Tu pedido</h2>
+    <button type="button" class="btn-close" id="btnClosePanel" aria-label="Cerrar">✕</button>
   </div>
   <div class="side-panel-body" id="sidePanelBody"></div>
   <div class="side-panel-footer" id="sidePanelFooter"></div>
@@ -43,6 +56,7 @@
 <footer class="site-footer">
   <div class="container">
     <p>Simulador de pedidos online · Demo desarrollado por IO Consulting</p>
+    <p class="footer-nota">Negocio ficticio. Los datos que cargues no se guardan ni se envían a ningún servidor.</p>
   </div>
 </footer>
 

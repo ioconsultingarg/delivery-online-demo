@@ -1,7 +1,7 @@
 {
   "negocio": {
     "nombre": "Pizzería IO Consulting",
-    "whatsapp": "5491155555555",
+    "whatsapp": "",
     "actualizado": "2026-08-31"
   },
   "categorias": [
@@ -27,7 +27,7 @@
       "id": "bebidas",
       "nombre": "Bebidas",
       "items": [
-        { "id": "gaseosa-linea", "nombre": "Gaseosa línea Coca-Cola 500ml", "descripcion": "", "precio": 2200, "agotado": false, "destacado": false },
+        { "id": "gaseosa-linea", "nombre": "Gaseosa línea cola 500ml", "descripcion": "", "precio": 2200, "agotado": false, "destacado": false },
         { "id": "cerveza-ipa", "nombre": "Cerveza artesanal IPA 500ml", "descripcion": "", "precio": 3400, "agotado": false, "destacado": false },
         { "id": "agua", "nombre": "Agua mineral 500ml", "descripcion": "Con o sin gas", "precio": 1500, "agotado": false, "destacado": false }
       ]

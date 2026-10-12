@@ -51,7 +51,7 @@ python3 -m http.server 8000
 
 1. Reemplazar `data/menu.json` por el catálogo del nuevo negocio (funciona igual para una rotisería, una verdulería con envío, o un catálogo de productos de librería)
 2. Cambiar las variables de color en `css/styles.css` (bloque `:root`)
-3. Actualizar el número de WhatsApp en `negocio.whatsapp` dentro de `menu.json`
+3. Cargar el número de WhatsApp del negocio en `negocio.whatsapp` dentro de `menu.json` (formato internacional sin `+`, ej. `549` + código de área + número). En la demo va vacío a propósito: así WhatsApp deja elegir el destinatario y ningún pedido de prueba le llega a un número ajeno
 
 ## Estructura
 
