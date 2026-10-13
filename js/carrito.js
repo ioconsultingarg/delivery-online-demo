@@ -12,7 +12,7 @@ const TELEFONO_VALIDO = /^(?=(?:\D*\d){8,15}\D*$)[\d\s()+-]+$/;
 // Mientras el panel está abierto, el resto de la página queda inerte: ni el
 // teclado ni el lector de pantalla pueden salirse del diálogo.
 function fondoDelPanel() {
-  return document.querySelectorAll('body > header, body > nav, body > main, body > footer');
+  return document.querySelectorAll('body > .demo-bar, body > header, body > .menu-zona, body > section, body > footer');
 }
 
 function abrirCarrito() {
@@ -194,47 +194,88 @@ function armarMensajeWhatsApp() {
   return lineas.join('\n');
 }
 
-// El pedido se muestra como se va a ver en el chat del local: es lo que vende
-// la demo, así que se anima línea por línea (ver ANIM.chat).
+// Un pedido tomado "a mano" por chat, para comparar. Usa el primer producto
+// del menú, así el ejemplo acompaña a cualquier catálogo.
+function conversacionDeHoy() {
+  const item = MENU.categorias[0].items[0];
+  return [
+    ['c', 'Hola, ¿hacen envíos?'],
+    ['l', '¡Hola! Sí. ¿Qué vas a pedir?'],
+    ['c', '¿Me pasás el menú?'],
+    ['l', 'Te mando una foto.'],
+    ['c', `No se lee bien. ¿Cuánto sale ${item.nombre}?`],
+    ['l', formatearPrecio(item.precio)],
+    ['c', 'Dale, mandame dos.'],
+    ['l', '¿A qué dirección?'],
+    ['c', 'Ahí te la paso...'],
+    ['l', '¿Pagás en efectivo o transferencia?'],
+    ['c', 'Efectivo. ¿Cuánto es todo?'],
+  ];
+}
+
+function renderChat({ id, titulo, subtitulo, cuerpo }) {
+  return `
+    <div class="wa"${id ? ` id="${id}"` : ''}>
+      <div class="wa-top" aria-hidden="true">
+        <span class="wa-avatar">${escapeHtml(titulo.trim().charAt(0).toUpperCase())}</span>
+        <span class="wa-contacto"><strong>${escapeHtml(titulo)}</strong><small>${escapeHtml(subtitulo)}</small></span>
+      </div>
+      <div class="wa-cuerpo">${cuerpo}</div>
+    </div>`;
+}
+
+// La confirmación es el momento en que la demo le habla al dueño del local:
+// primero ve cómo le llega el pedido (un solo mensaje, animado línea por línea)
+// y debajo el mismo pedido tomado como hoy, a puro ida y vuelta.
 function renderConfirmacion(mensaje) {
   const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
   const lineas = mensaje.split('\n').map((l) =>
     `<div class="wa-linea${l ? '' : ' wa-espacio'}">${escapeHtml(l)}</div>`
   ).join('');
-  const inicial = escapeHtml(MENU.negocio.nombre.trim().charAt(0).toUpperCase());
+  const hoy = conversacionDeHoy();
 
   document.getElementById('sidePanelTitle').textContent = 'Pedido armado';
   document.getElementById('sidePanelBody').innerHTML = `
     <div class="confirm-screen">
-      <h3>¡Se abrió WhatsApp con tu pedido!</h3>
-      <p class="confirm-ayuda">Solo tenés que tocar enviar. Así le llega al local:</p>
-      <div class="wa" id="waChat">
-        <div class="wa-top" aria-hidden="true">
-          <span class="wa-avatar">${inicial}</span>
-          <span class="wa-contacto"><strong>${escapeHtml(MENU.negocio.nombre)}</strong><small>en línea</small></span>
-        </div>
-        <div class="wa-cuerpo">
-          <div class="wa-burbuja">
-            ${lineas}
-            <div class="wa-meta" aria-hidden="true">
-              <span>${hora}</span>
-              <svg class="wa-tildes" viewBox="0 0 18 12" width="18" height="12" focusable="false"><path d="M1 6.5 4.5 10 11 2M7 9l1.2 1L15 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-          </div>
-        </div>
+      <p class="confirm-aviso">Se abrió WhatsApp con el pedido listo para enviar.</p>
+
+      <div class="confirm-bloque">
+        <h3>Así te llega a vos <span class="confirm-cuenta confirm-cuenta-bien">1 mensaje</span></h3>
+        <p class="confirm-ayuda">Completo y listo para preparar: qué, cuánto, dónde y cómo paga.</p>
+        ${renderChat({
+          id: 'waChat',
+          titulo: checkoutData.nombre,
+          subtitulo: 'en el WhatsApp de tu local',
+          cuerpo: `<div class="wa-burbuja wa-entrante">${lineas}<div class="wa-meta" aria-hidden="true">${hora}</div></div>`,
+        })}
+      </div>
+
+      <div class="confirm-bloque">
+        <h3>Y así se toma hoy <span class="confirm-cuenta confirm-cuenta-mal">${hoy.length} mensajes</span></h3>
+        <p class="confirm-ayuda">El mismo pedido por chat, en plena hora pico, y todavía falta la dirección.</p>
+        ${renderChat({
+          titulo: 'Cliente',
+          subtitulo: 'un pedido cualquiera',
+          cuerpo: hoy.map(([quien, texto]) =>
+            `<div class="wa-burbuja wa-chica ${quien === 'c' ? 'wa-entrante' : 'wa-saliente'}">${escapeHtml(texto)}</div>`
+          ).join(''),
+        })}
       </div>
     </div>
   `;
   document.getElementById('sidePanelFooter').innerHTML = `
-    <button type="button" class="btn btn-primary" id="btnNuevoPedido">Hacer otro pedido</button>
+    <a class="btn btn-cta btn-volver" data-cta-negocio href="${escapeHtml(linkContacto())}">Quiero esto para mi negocio</a>
+    <button type="button" class="btn btn-secondary" id="btnNuevoPedido">Hacer otro pedido</button>
   `;
+  actualizarCtas(document.getElementById('sidePanelFooter'));
   const btnNuevo = document.getElementById('btnNuevoPedido');
   btnNuevo.addEventListener('click', () => {
     checkoutData = { nombre: '', telefono: '', tipoEntrega: 'retiro', direccion: '', metodoPago: 'efectivo', notas: '' };
     vaciarCarrito();
     cerrarPanel();
   });
-  btnNuevo.focus();
+  document.getElementById('sidePanelBody').scrollTop = 0;
+  document.querySelector('#sidePanelFooter [data-cta-negocio]').focus();
   ANIM.chat(document.getElementById('waChat'));
 }
 

@@ -118,6 +118,8 @@ main section { scroll-margin-top: 4.5rem; }
   .btn-primary:not(:disabled):hover { background: var(--color-primary-dark); }
   .btn-whatsapp:hover { filter: brightness(1.06); }
   .btn-close:hover { background: var(--color-disabled); }
+  .btn-cta:hover, .demo-bar a:hover { filter: brightness(1.08); }
+  .btn-claro:hover { background: rgba(255, 255, 255, 0.1); }
   .cart-fab:hover { background: var(--color-primary-darker); }
 }
 
@@ -203,6 +205,8 @@ a.btn { text-decoration: none; }
 .btn-whatsapp { background: var(--color-whatsapp); color: var(--color-on-whatsapp); }
 .btn-secondary { background: transparent; color: var(--color-text-light); border: 2px solid var(--color-border-input); }
 .btn-volver { margin-bottom: 0.6rem; }
+.btn-cta { background: var(--color-secondary); color: #442d00; }
+.btn-claro { width: auto; background: transparent; color: white; border: 2px solid rgba(255, 255, 255, 0.45); padding: 0.6rem 1.1rem; }
 
 .form-field { margin-bottom: 0.9rem; }
 fieldset.form-field { border: 0; padding: 0; margin-inline: 0; min-width: 0; }
@@ -221,23 +225,50 @@ fieldset.form-field { border: 0; padding: 0; margin-inline: 0; min-width: 0; }
 .aviso-error { color: var(--color-danger); font-size: 0.82rem; font-weight: 600; }
 .nota-privacidad { font-size: 0.78rem; color: var(--color-text-light); margin: 0.6rem 0 0; }
 
-/* ---------- Confirmación: el pedido dentro de un chat ---------- */
-.confirm-screen { text-align: center; padding: 0.4rem 0 0; }
-.confirm-screen h3 { font-size: 1.1rem; }
-.confirm-ayuda { font-size: 0.85rem; color: var(--color-text-light); margin: 0 0 1rem; }
+/* ---------- Confirmación: cómo le llega el pedido al local ---------- */
+.confirm-screen { padding: 0; }
+.confirm-aviso { margin: 0 0 1.1rem; padding: 0.6rem 0.8rem; border-radius: 10px; background: #e7f8ee; color: #0b4a25; font-size: 0.84rem; font-weight: 600; }
+.confirm-bloque { margin-bottom: 1.6rem; }
+.confirm-bloque h3 { font-size: 1.05rem; margin-bottom: 0.2rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.confirm-cuenta { font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 999px; }
+.confirm-cuenta-bien { background: #d9fdd3; color: #0b4a25; }
+.confirm-cuenta-mal { background: #fde2e0; color: #8f1a1f; }
+.confirm-ayuda { font-size: 0.84rem; color: var(--color-text-light); margin: 0 0 0.7rem; }
 .wa { border-radius: 16px; overflow: hidden; border: 1px solid var(--color-border); box-shadow: var(--shadow); text-align: left; }
 .wa-top { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.8rem; background: #075e54; color: white; }
-.wa-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--color-primary); display: grid; place-items: center; font-family: var(--font-heading); font-weight: 700; }
-.wa-contacto { display: flex; flex-direction: column; line-height: 1.2; font-size: 0.86rem; }
-.wa-contacto small { font-size: 0.72rem; opacity: 0.85; }
-.wa-cuerpo { background: #efe7dd; padding: 0.9rem 0.7rem; display: flex; justify-content: flex-end; }
-.wa-burbuja { background: #d9fdd3; color: #111b21; border-radius: 12px 12px 3px 12px; padding: 0.55rem 0.7rem 0.35rem; max-width: 94%; font-size: 0.84rem; line-height: 1.4; overflow-wrap: anywhere; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12); transform-origin: bottom right; }
+.wa-avatar { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: #dfe5e7; color: #54656f; display: grid; place-items: center; font-family: var(--font-heading); font-weight: 700; }
+.wa-contacto { display: flex; flex-direction: column; line-height: 1.2; font-size: 0.86rem; min-width: 0; overflow-wrap: anywhere; }
+.wa-contacto small { font-size: 0.75rem; opacity: 0.9; }
+.wa-cuerpo { background: #efe7dd; padding: 0.9rem 0.7rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.wa-burbuja { color: #111b21; padding: 0.55rem 0.7rem 0.35rem; max-width: 94%; font-size: 0.84rem; line-height: 1.4; overflow-wrap: anywhere; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12); }
+.wa-entrante { align-self: flex-start; background: #ffffff; border-radius: 3px 12px 12px 12px; transform-origin: top left; }
+.wa-saliente { align-self: flex-end; background: #d9fdd3; border-radius: 12px 3px 12px 12px; }
+.wa-chica { max-width: 82%; padding: 0.35rem 0.6rem; font-size: 0.8rem; }
 .wa-espacio { height: 0.6em; }
-.wa-meta { display: flex; justify-content: flex-end; align-items: center; gap: 0.25rem; margin-top: 0.15rem; font-size: 0.75rem; color: #667781; }
-.wa-tildes { color: #8696a0; transition: color 0.35s; }
-.wa.leido .wa-tildes { color: #53bdeb; }
+.wa-meta { text-align: right; margin-top: 0.15rem; font-size: 0.75rem; color: #667781; }
 
-.site-footer { background: var(--color-primary-dark); color: white; padding: 1.2rem 0; text-align: center; font-size: 0.85rem; }
+/* ---------- Capa para el dueño del negocio ---------- */
+.demo-bar { background: #1f1a17; color: #f5ece2; font-size: 0.8rem; }
+.demo-bar-inner { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; flex-wrap: wrap; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.demo-bar p { margin: 0; }
+.demo-bar a { flex: 0 0 auto; color: #442d00; background: var(--color-secondary); font-weight: 700; text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 999px; }
+
+.negocio { background: #1f1a17; color: #f5ece2; padding: 3rem 0; scroll-margin-top: 1rem; }
+.negocio-eyebrow { margin: 0 0 0.6rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-secondary); }
+.negocio h2 { font-size: clamp(1.5rem, 4.4vw, 2.2rem); line-height: 1.15; letter-spacing: -0.01em; max-width: 20ch; overflow-wrap: anywhere; }
+.negocio-sub { margin: 0 0 1.4rem; max-width: 52ch; color: #d9cdc0; }
+.negocio-form { max-width: 520px; margin-bottom: 1.8rem; }
+.negocio-form label { display: block; font-weight: 600; font-size: 0.84rem; margin-bottom: 0.35rem; }
+.negocio-fila { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.negocio-fila input { flex: 1 1 200px; min-width: 0; padding: 0.65rem 0.8rem; border-radius: 10px; border: 2px solid #94806a; background: #2b2420; color: white; font-size: 0.95rem; font-family: inherit; }
+.negocio-fila input::placeholder { color: #a8998a; }
+.negocio-link { margin-top: 1rem; padding: 0.9rem 1rem; border-radius: 12px; background: #2b2420; border: 1px solid #4a3f37; }
+.negocio-link p { margin: 0 0 0.5rem; font-size: 0.86rem; }
+.negocio-link .negocio-link-url { font-family: ui-monospace, Consolas, monospace; font-size: 0.8rem; color: var(--color-secondary); overflow-wrap: anywhere; user-select: all; margin-bottom: 0.8rem; }
+.negocio-cta { width: auto; padding-inline: 1.8rem; font-size: 1rem; }
+.negocio-nota { margin: 0.8rem 0 0; font-size: 0.84rem; color: #d9cdc0; }
+
+.site-footer { background: var(--color-primary-dark); color: white; padding: 1.2rem 0 5.5rem; text-align: center; font-size: 0.85rem; }
 .site-footer p { margin: 0.2rem 0; }
 .footer-nota { font-size: 0.78rem; opacity: 0.9; }
 

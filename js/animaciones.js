@@ -121,8 +121,7 @@ const ANIM = (() => {
   function chat(caja) {
     const lineas = caja.querySelectorAll('.wa-linea');
     const meta = caja.querySelector('.wa-meta');
-    const leer = () => caja.classList.add('leido');
-    if (!activo()) { leer(); return; }
+    if (!activo()) return;
     anime.animate(caja.querySelector('.wa-burbuja'), {
       opacity: [0, 1], scale: [0.92, 1], duration: 380, delay: 150, ease: 'outBack',
     });
@@ -137,7 +136,6 @@ const ANIM = (() => {
       opacity: [0, 1],
       duration: 300,
       delay: 380 + lineas.length * 85 + 150,
-      onComplete: () => setTimeout(leer, 500),
     });
   }
 

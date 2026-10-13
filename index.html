@@ -26,6 +26,13 @@
 </head>
 <body>
 
+<div class="demo-bar">
+  <div class="container demo-bar-inner">
+    <p><strong>Demo de IO Consulting.</strong> <span id="demoBarTexto">Así pedirían tus clientes: armá un pedido y mirá cómo te llega.</span></p>
+    <a href="#para-tu-negocio">Lo quiero para mi negocio</a>
+  </div>
+</div>
+
 <header class="hero">
   <div class="container hero-inner">
     <p class="hero-eyebrow" id="nombreNegocio">Pizzería IO Consulting</p>
@@ -40,6 +47,7 @@
   <div class="hero-pizza" id="heroPizza" aria-hidden="true"></div>
 </header>
 
+<div class="menu-zona">
 <nav class="category-nav container" id="categoryNav" aria-label="Categorías del menú"></nav>
 
 <main class="container">
@@ -48,6 +56,7 @@
     <noscript><p class="cart-empty">Para ver el menú y armar el pedido necesitás tener JavaScript activado.</p></noscript>
   </div>
 </main>
+</div>
 
 <button type="button" class="cart-fab" id="cartFab" aria-haspopup="dialog" inert>
   <svg class="fab-icono" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M6 8h12l-1 11.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 19.5L6 8Zm3 0V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -66,6 +75,31 @@
   <div class="side-panel-footer" id="sidePanelFooter"></div>
 </aside>
 
+<section class="negocio" id="para-tu-negocio" aria-labelledby="negocioTitulo">
+  <div class="container">
+    <p class="negocio-eyebrow">¿Tenés un negocio?</p>
+    <h2 id="negocioTitulo">Esto puede llevar el nombre de tu local.</h2>
+    <p class="negocio-sub">El menú es de ejemplo: va el tuyo, con tus precios y tu WhatsApp. Escribí el nombre de tu negocio y mirá la demo como la verían tus clientes.</p>
+    <div class="negocio-form">
+      <label for="inpNegocio">Nombre de tu negocio</label>
+      <div class="negocio-fila">
+        <input type="text" id="inpNegocio" maxlength="40" autocomplete="organization" placeholder="Ej: La Esquina">
+        <button type="button" class="btn btn-claro" id="btnPersonalizar">Ver con mi nombre</button>
+      </div>
+      <div class="negocio-link" id="negocioLink" role="status" hidden>
+        <p>Listo. Este link abre la demo con tu nombre:</p>
+        <p class="negocio-link-url" id="negocioLinkUrl"></p>
+        <div class="negocio-fila">
+          <button type="button" class="btn btn-claro" id="btnVerArriba">Verla desde arriba</button>
+          <button type="button" class="btn btn-claro" id="btnCopiarLink">Copiar link</button>
+        </div>
+      </div>
+    </div>
+    <a class="btn btn-cta negocio-cta" data-cta-negocio href="mailto:contacto@ioconsulting.com.ar">Quiero esto para mi negocio</a>
+    <p class="negocio-nota">Nos escribís, vemos tu caso y te decimos si te sirve. Sin compromiso.</p>
+  </div>
+</section>
+
 <footer class="site-footer">
   <div class="container">
     <p>Simulador de pedidos online · Demo desarrollado por IO Consulting</p>
@@ -76,6 +110,7 @@
 <script src="js/vendor/anime.umd.min.js"></script>
 <script src="js/ilustraciones.js"></script>
 <script src="js/animaciones.js"></script>
+<script src="js/demo.js"></script>
 <script src="js/catalogo.js"></script>
 <script src="js/carrito.js"></script>
 </body>

@@ -54,6 +54,14 @@ python3 -m http.server 8000
 2. Cambiar las variables de color en `css/styles.css` (bloque `:root`)
 3. Cargar el número de WhatsApp del negocio en `negocio.whatsapp` dentro de `menu.json` (formato internacional sin `+`, ej. `549` + código de área + número). En la demo va vacío a propósito: así WhatsApp deja elegir el destinatario y ningún pedido de prueba le llega a un número ajeno
 
+## Mostrársela a un interesado
+
+La demo le habla a dos personas: a quien hace el pedido y al dueño del negocio que está evaluando tenerla.
+
+- **Con el nombre de su local:** agregar `?negocio=` al link, por ejemplo `https://ioconsultingarg.github.io/delivery-online-demo/?negocio=La+Esquina`. El nombre aparece en el encabezado, en el título de la pestaña y en el mensaje del pedido. También se puede generar el link desde la sección "¿Tenés un negocio?" al pie de la página.
+- **Cómo le llega el pedido:** al confirmar un pedido de prueba, la pantalla muestra el mensaje tal como entra al WhatsApp del local, y debajo el mismo pedido tomado a mano por chat.
+- **Contacto:** los botones "Quiero esto para mi negocio" usan los datos de `DEMO.contacto` en `js/demo.js`. Si `whatsapp` está vacío, abren un mail.
+
 ## Estructura
 
 ```
@@ -65,6 +73,7 @@ delivery-online-demo/
 ├── js/carrito.js           (panel lateral: carrito, checkout, mensaje de WhatsApp)
 ├── js/ilustraciones.js     (dibujos SVG de cada producto)
 ├── js/animaciones.js       (animaciones, sobre Anime.js)
+├── js/demo.js              (capa para el dueño: nombre del negocio y contacto)
 ├── js/vendor/              (Anime.js v4, alojado en el repo)
 ├── data/menu.json          (mismo catálogo que menu-qr-demo)
 ├── assets/                 (imagen para compartir y GIF del README)

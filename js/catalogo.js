@@ -30,7 +30,7 @@ async function cargarMenu() {
       '<p class="cart-empty" role="alert">No pudimos cargar el menú. Recargá la página para volver a intentar.</p>';
     return;
   }
-  document.getElementById('nombreNegocio').textContent = MENU.negocio.nombre;
+  aplicarNombreNegocio(leerNegocioDeUrl());
   renderCategoryNav();
   renderCategorias();
   activarScrollSpy();
