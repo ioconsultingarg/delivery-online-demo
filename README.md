@@ -27,6 +27,7 @@ Flujo: elegir productos del catálogo (con contador de cantidad) → ver el carr
 ## Stack
 
 - HTML/CSS/JS puro, sin build step
+- Ilustraciones SVG propias y animaciones con [Anime.js](https://animejs.com) v4 (MIT), alojado en el repo: no se carga nada desde CDNs de scripts
 - Catálogo cargado desde `data/menu.json` (mismo formato que `menu-qr-demo`)
 - Carrito en memoria (`js/catalogo.js` + `js/carrito.js`) — se reinicia al recargar la página, es intencional para esta versión demo
 - Mensaje de pedido armado como texto y enviado vía `wa.me` (WhatsApp), sin backend ni servidor de pedidos
@@ -57,14 +58,22 @@ python3 -m http.server 8000
 
 ```
 delivery-online-demo/
-├── index.html         (catálogo + carrito + checkout)
+├── index.html              (catálogo + carrito + checkout)
+├── 404.html · sitemap.xml
 ├── css/styles.css
-├── js/catalogo.js       (carga el menú y arma las tarjetas de producto)
-├── js/carrito.js         (panel lateral: carrito, checkout, mensaje de WhatsApp)
-├── data/menu.json         (mismo catálogo que menu-qr-demo)
+├── js/catalogo.js          (carga el menú, tarjetas, navegación y carrito)
+├── js/carrito.js           (panel lateral: carrito, checkout, mensaje de WhatsApp)
+├── js/ilustraciones.js     (dibujos SVG de cada producto)
+├── js/animaciones.js       (animaciones, sobre Anime.js)
+├── js/vendor/              (Anime.js v4, alojado en el repo)
+├── data/menu.json          (mismo catálogo que menu-qr-demo)
+├── assets/                 (imagen para compartir y GIF del README)
+├── CREDITS.md
 ├── README.md
 └── LICENSE
 ```
+
+Las animaciones son decorativas: si Anime.js no carga, o la persona tiene activado "reducir movimiento" en su sistema, el sitio funciona igual y sin animar.
 
 ## Próximas mejoras posibles
 

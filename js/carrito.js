@@ -1,7 +1,7 @@
 // Carrito, checkout y armado del mensaje de WhatsApp — Delivery online demo.
 // No hay backend: el "pedido" se arma como texto y se abre en WhatsApp para que
 // el cliente lo envíe él mismo — así el dueño no paga comisión de marketplace.
-// escapeHtml() y renderQtyControl() están en catalogo.js.
+// escapeHtml() y renderQtyControl() están en catalogo.js; ANIM en animaciones.js.
 
 let panelMode = 'carrito';
 let checkoutData = { nombre: '', telefono: '', tipoEntrega: 'retiro', direccion: '', metodoPago: 'efectivo', notas: '' };
@@ -12,7 +12,7 @@ const TELEFONO_VALIDO = /^(?=(?:\D*\d){8,15}\D*$)[\d\s()+-]+$/;
 // Mientras el panel está abierto, el resto de la página queda inerte: ni el
 // teclado ni el lector de pantalla pueden salirse del diálogo.
 function fondoDelPanel() {
-  return document.querySelectorAll('body > header, body > nav, body > main, body > footer, #cartFab');
+  return document.querySelectorAll('body > header, body > nav, body > main, body > footer');
 }
 
 function abrirCarrito() {
@@ -23,7 +23,9 @@ function abrirCarrito() {
   panel.inert = false;
   panel.classList.add('open');
   fondoDelPanel().forEach((el) => { el.inert = true; });
+  document.getElementById('cartFab').inert = true;
   renderCarritoPanel();
+  ANIM.itemsPanel(document.getElementById('sidePanelBody'));
   document.getElementById('btnClosePanel').focus();
 }
 
@@ -36,7 +38,8 @@ function cerrarPanel() {
   panel.inert = true;
   fondoDelPanel().forEach((el) => { el.inert = false; });
   const fab = document.getElementById('cartFab');
-  const destino = focoAntesDeAbrir && focoAntesDeAbrir.isConnected && fab.classList.contains('visible') ? focoAntesDeAbrir : null;
+  fab.inert = !fab.classList.contains('visible');
+  const destino = focoAntesDeAbrir && focoAntesDeAbrir.isConnected && !fab.inert ? focoAntesDeAbrir : null;
   (destino || document.querySelector('#categoryNav button') || document.body).focus();
 }
 
@@ -52,15 +55,14 @@ function renderCarritoPanel() {
   } else {
     body.innerHTML = items.map(({ item, cantidad }) => `
       <div class="cart-item">
-        <div>
-          <div class="cart-item-name">${cantidad} × ${escapeHtml(item.nombre)}</div>
+        <div class="cart-item-ilustracion">${ILUSTRACIONES.de(item.id)}</div>
+        <div class="cart-item-texto">
+          <div class="cart-item-name">${escapeHtml(item.nombre)}</div>
           <div class="cart-item-precio">${formatearPrecio(item.precio)} c/u</div>
         </div>
         ${renderQtyControl(item, cantidad)}
       </div>
     `).join('');
-    body.querySelectorAll('[data-mas]').forEach((btn) => btn.addEventListener('click', () => cambiarCantidad(btn.dataset.mas, 1)));
-    body.querySelectorAll('[data-menos]').forEach((btn) => btn.addEventListener('click', () => cambiarCantidad(btn.dataset.menos, -1)));
   }
 
   const footer = document.getElementById('sidePanelFooter');
@@ -192,14 +194,35 @@ function armarMensajeWhatsApp() {
   return lineas.join('\n');
 }
 
+// El pedido se muestra como se va a ver en el chat del local: es lo que vende
+// la demo, así que se anima línea por línea (ver ANIM.chat).
 function renderConfirmacion(mensaje) {
+  const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  const lineas = mensaje.split('\n').map((l) =>
+    `<div class="wa-linea${l ? '' : ' wa-espacio'}">${escapeHtml(l)}</div>`
+  ).join('');
+  const inicial = escapeHtml(MENU.negocio.nombre.trim().charAt(0).toUpperCase());
+
   document.getElementById('sidePanelTitle').textContent = 'Pedido armado';
   document.getElementById('sidePanelBody').innerHTML = `
     <div class="confirm-screen">
-      <div class="icon" aria-hidden="true">✅</div>
       <h3>¡Se abrió WhatsApp con tu pedido!</h3>
-      <p class="confirm-ayuda">Solo tenés que enviar el mensaje que ya está redactado. Así se ve:</p>
-      <div class="confirm-summary-box">${escapeHtml(mensaje)}</div>
+      <p class="confirm-ayuda">Solo tenés que tocar enviar. Así le llega al local:</p>
+      <div class="wa" id="waChat">
+        <div class="wa-top" aria-hidden="true">
+          <span class="wa-avatar">${inicial}</span>
+          <span class="wa-contacto"><strong>${escapeHtml(MENU.negocio.nombre)}</strong><small>en línea</small></span>
+        </div>
+        <div class="wa-cuerpo">
+          <div class="wa-burbuja">
+            ${lineas}
+            <div class="wa-meta" aria-hidden="true">
+              <span>${hora}</span>
+              <svg class="wa-tildes" viewBox="0 0 18 12" width="18" height="12" focusable="false"><path d="M1 6.5 4.5 10 11 2M7 9l1.2 1L15 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
   document.getElementById('sidePanelFooter').innerHTML = `
@@ -207,18 +230,24 @@ function renderConfirmacion(mensaje) {
   `;
   const btnNuevo = document.getElementById('btnNuevoPedido');
   btnNuevo.addEventListener('click', () => {
-    Object.keys(carrito).forEach((k) => delete carrito[k]);
     checkoutData = { nombre: '', telefono: '', tipoEntrega: 'retiro', direccion: '', metodoPago: 'efectivo', notas: '' };
-    refrescarVistas();
+    vaciarCarrito();
     cerrarPanel();
   });
   btnNuevo.focus();
+  ANIM.chat(document.getElementById('waChat'));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cartFab').addEventListener('click', abrirCarrito);
   document.getElementById('overlay').addEventListener('click', cerrarPanel);
   document.getElementById('btnClosePanel').addEventListener('click', cerrarPanel);
+  document.getElementById('sidePanelBody').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (btn.dataset.mas) cambiarCantidad(btn.dataset.mas, 1, '#sidePanel');
+    else if (btn.dataset.menos) cambiarCantidad(btn.dataset.menos, -1, '#sidePanel');
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') cerrarPanel();
   });

@@ -26,22 +26,35 @@
 </head>
 <body>
 
-<header class="page-header">
-  <div class="container">
-    <h1 id="nombreNegocio">Pizzería IO Consulting</h1>
-    <p class="page-subtitle">Elegí tus platos, armá el carrito y enviá el pedido directo por WhatsApp — sin marketplace, sin comisión.</p>
+<header class="hero">
+  <div class="container hero-inner">
+    <p class="hero-eyebrow" id="nombreNegocio">Pizzería IO Consulting</p>
+    <h1 id="heroTitulo">Tu pedido, directo al WhatsApp del local.</h1>
+    <p class="hero-sub">Elegí tus platos, armá el carrito y enviá el pedido ya redactado.</p>
+    <ul class="hero-chips">
+      <li>Sin comisión</li>
+      <li>Sin app</li>
+      <li>Sin registro</li>
+    </ul>
   </div>
+  <div class="hero-pizza" id="heroPizza" aria-hidden="true"></div>
 </header>
 
 <nav class="category-nav container" id="categoryNav" aria-label="Categorías del menú"></nav>
 
 <main class="container">
   <div id="categorias">
+    <div class="esqueleto" aria-hidden="true"><span></span><span></span><span></span></div>
     <noscript><p class="cart-empty">Para ver el menú y armar el pedido necesitás tener JavaScript activado.</p></noscript>
   </div>
 </main>
 
-<button type="button" class="cart-fab" id="cartFab" aria-haspopup="dialog"></button>
+<button type="button" class="cart-fab" id="cartFab" aria-haspopup="dialog" inert>
+  <svg class="fab-icono" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M6 8h12l-1 11.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 19.5L6 8Zm3 0V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Ver pedido</span>
+  <span class="cart-count" id="fabCount">0</span>
+  <span class="fab-total" id="fabTotal">$0</span>
+</button>
 
 <div class="overlay" id="overlay"></div>
 <aside class="side-panel" id="sidePanel" role="dialog" aria-modal="true" aria-labelledby="sidePanelTitle" inert>
@@ -60,6 +73,9 @@
   </div>
 </footer>
 
+<script src="js/vendor/anime.umd.min.js"></script>
+<script src="js/ilustraciones.js"></script>
+<script src="js/animaciones.js"></script>
 <script src="js/catalogo.js"></script>
 <script src="js/carrito.js"></script>
 </body>
